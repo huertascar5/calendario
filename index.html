@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Horario por Ciclos — Liceo Taller San Miguel</title>
+<style>
+  :root{
+    --red: #b3272d;
+    --red-dark: #8f1f24;
+    --cream: #f4f1ec;
+    --ink: #26221f;
+    --gray: #8c8a86;
+    --gray-light: #e4e1da;
+    --lunch-blue: #2d6b8f;
+    --gold: #d9a441;
+    --uniform-gray: #6f7478;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 0 48px 0;
+  }
+  header{
+    padding:28px 20px 20px 20px;
+    background:#fff;
+    border-bottom:3px solid var(--red);
+  }
+  .header-grid{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    row-gap:8px;
+    align-items:center;
+  }
+  .header-grid .brand-logo{
+    height:58px;
+    width:auto;
+    display:block;
+    justify-self:center;
+  }
+  .header-grid .settings-btn{
+    justify-self:end;
+  }
+  .header-grid h1{
+    justify-self:start;
+  }
+  .header-grid .student-name{
+    justify-self:end;
+    font-size:14px;
+    font-weight:700;
+    color:var(--uniform-gray);
+    text-align:right;
+  }
+  h1{
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size:34px;
+    font-weight:700;
+    color:var(--red);
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:13px;
+    color:var(--gray);
+    font-weight:500;
+    margin-top:4px;
+  }
+  .week-nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 20px;
+    background:#fff;
+    border-bottom:1px solid var(--gray-light);
+  }
+  .week-nav button{
+    border:none;
+    background:var(--gray-light);
+    color:var(--ink);
+    width:34px;height:34px;
+    border-radius:50%;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .week-nav button:active{background:var(--red);color:#fff;}
+  .week-label{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink);
+    text-align:center;
+  }
+  .week-nav button.today-btn{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:#fff;
+    background:var(--red);
+    border:none;
+    cursor:pointer;
+    display:block;
+    width:auto;
+    height:auto;
+    margin:4px auto 0 auto;
+    padding:6px 18px;
+    border-radius:20px;
+  }
+  .week-nav button.today-btn:active{background:var(--red-dark);color:#fff;}
+  main{padding:18px 16px 0 16px;}
+  .days{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .day-card{
+    background:#fff;
+    border:1px solid var(--gray-light);
+    border-left:6px solid var(--uniform-gray);
+    border-radius:10px;
+    padding:14px 16px;
+    cursor:pointer;
+    transition:box-shadow .15s ease, transform .1s ease;
+  }
+  .day-card:active{transform:scale(0.99);}
+  .day-card.uniform-rojo{
+    border-left-color:var(--red);
+  }
+  .day-card.uniform-gris{
+    border-left-color:var(--uniform-gray);
+  }
+  .day-card.today{
+    box-shadow:0 2px 10px rgba(179,39,45,0.12);
+    background:#fffdf7;
+  }
+  .day-card.special{
+    border-left-color:var(--gray);
+  }
+  .day-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .day-name-block{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .weekday{
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .date-num{
+    font-size:13px;
+    color:var(--gray);
+    font-weight:600;
+  }
+  .cycle-tag{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--red);
+    background:#fbe9e8;
+    padding:4px 9px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .cycle-tag.special{
+    color:var(--gray);
+    background:var(--gray-light);
+  }
+  .today-pill{
+    font-size:10px;
+    font-weight:700;
+    color:#fff;
+    background:var(--gray);
+    padding:2px 8px;
+    border-radius:20px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-left:8px;
+  }
+  .day-card.uniform-rojo .today-pill{ background:var(--red); }
+  .day-card.uniform-gris .today-pill{ background:var(--uniform-gray); }
+  .chevron{
+    color:var(--gray);
+    font-size:18px;
+    margin-left:6px;
+  }
+  footer{
+    padding:20px 20px 0 20px;
+    text-align:center;
+    font-size:11px;
+    color:var(--gray);
+  }
+
+  /* Modal */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(38,34,31,0.45);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .sheet{
+    background:#fff;
+    width:100%;
+    max-width:640px;
+    border-radius:18px 18px 0 0;
+    padding:0 0 24px 0;
+    max-height:85vh;
+    overflow-y:auto;
+    animation:slideup .22s ease;
+  }
+  @keyframes slideup{
+    from{transform:translateY(24px);opacity:0;}
+    to{transform:translateY(0);opacity:1;}
+  }
+  .sheet-header{
+    position:sticky;top:0;
+    background:var(--red);
+    color:#fff;
+    padding:20px 20px 16px 20px;
+    border-radius:18px 18px 0 0;
+  }
+  .sheet-header .grip{
+    width:36px;height:4px;background:rgba(255,255,255,.4);
+    border-radius:4px;margin:0 auto 14px auto;
+  }
+  .sheet-header .title-row{
+    display:flex;justify-content:space-between;align-items:flex-start;
+  }
+  .sheet-header h2{
+    font-family: Georgia, 'Times New Roman', serif;
+    margin:0;font-size:24px;
+  }
+  .sheet-header .sheet-sub{
+    font-size:12px;opacity:.85;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  }
+  .close-btn{
+    background:rgba(255,255,255,.18);
+    border:none;color:#fff;
+    width:30px;height:30px;border-radius:50%;
+    font-size:16px;cursor:pointer;
+    flex-shrink:0;
+  }
+  .subjects{
+    padding:8px 20px 0 20px;
+  }
+  .subj-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 4px;
+    border-bottom:1px solid var(--gray-light);
+  }
+  .subj-row:last-child{border-bottom:none;}
+  .subj-idx{
+    font-size:11px;
+    color:#fff;
+    background:var(--ink);
+    width:22px;height:22px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    font-weight:700;
+  }
+  .subj-name{
+    font-size:15px;
+    font-weight:600;
+    flex:1;
+  }
+  .subj-row.break .subj-name, .subj-row.lunch .subj-name{
+    text-transform:uppercase;
+    font-size:12.5px;
+    letter-spacing:.05em;
+    color:var(--red);
+  }
+  .subj-row.break, .subj-row.lunch{
+    background:#fbeceb;
+  }
+  .subj-row.break .subj-idx, .subj-row.lunch .subj-idx{
+    display:none;
+  }
+  .no-data{
+    padding:30px 20px;
+    text-align:center;
+    color:var(--gray);
+    font-size:14px;
+  }
+
+  /* Footer de evento destacado en el detalle del día */
+  .event-footer{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin:6px 20px 20px 20px;
+    padding:12px 14px;
+    background:#fbe9e8;
+    border-left:4px solid var(--red);
+    border-radius:8px;
+  }
+  .event-footer-icon{
+    color:var(--red);
+    font-size:14px;
+    line-height:1.4;
+    flex-shrink:0;
+  }
+  .event-footer-text{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--red-dark);
+    line-height:1.4;
+  }
+
+  /* Uniforme (solo texto) */
+  .sheet-header .title-row{
+    align-items:center;
+  }
+  .mascot-wrap{
+    flex-shrink:0;
+    margin-left:10px;
+  }
+  .uniform-tag{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:#fff;
+    background:rgba(255,255,255,0.22);
+    padding:5px 11px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  /* Curso badge en el título */
+  .curso-badge{
+    font-size:18px;
+    font-weight:700;
+    color:var(--red);
+    background:#fbe9e8;
+    padding:2px 10px;
+    border-radius:8px;
+    vertical-align:middle;
+    margin-left:8px;
+    display:none;
+  }
+
+  /* Botón de configuración */
+  .settings-btn{
+    width:34px;height:34px;
+    border-radius:50%;
+    border:none;
+    background:var(--gray-light);
+    color:var(--ink);
+    font-size:17px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .settings-btn:active{background:var(--red);color:#fff;}
+
+  /* Panel de configuración */
+  .settings-body{
+    padding:18px 20px 28px 20px;
+  }
+  .field-block{
+    margin-bottom:22px;
+  }
+  .field-label{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--gray);
+    margin-bottom:8px;
+    display:block;
+  }
+  .field-help{
+    font-size:12px;
+    color:var(--gray);
+    margin-top:6px;
+  }
+  .text-input{
+    width:100%;
+    font-size:16px;
+    padding:10px 12px;
+    border:1px solid var(--gray-light);
+    border-radius:8px;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .text-input:focus{outline:2px solid var(--red);outline-offset:1px;}
+  .inline-form{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .inline-form .text-input{flex:1;}
+  .action-btn{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    padding:10px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .action-btn:active{background:var(--red-dark);}
+  .action-btn.full{width:100%;margin-top:14px;}
+  .status-msg{
+    font-size:12px;
+    font-weight:600;
+    margin-top:8px;
+  }
+  .status-msg.error{color:var(--red);}
+  .status-msg.success{color:#2c7a3d;}
+  .day-pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .day-pill{
+    font-size:12px;
+    font-weight:700;
+    padding:6px 13px;
+    border-radius:20px;
+    border:1px solid var(--gray-light);
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .day-pill.active{
+    background:var(--red);
+    border-color:var(--red);
+    color:#fff;
+  }
+  .subject-edit-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .subject-edit-row .subj-num{
+    width:20px;
+    font-size:12px;
+    color:var(--gray);
+    font-weight:700;
+    flex-shrink:0;
+    text-align:center;
+  }
+  .subject-edit-row input{
+    flex:1;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--gray-light);
+    border-radius:7px;
+    font-family:inherit;
+  }
+  .subject-edit-row.fixed input{
+    background:#f7f6f3;
+    color:var(--gray);
+    font-style:italic;
+  }
+
+  /* Editor de uniforme por día */
+  .uniform-config-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:9px 0;
+    border-bottom:1px solid var(--gray-light);
+  }
+  .uniform-config-row:last-child{border-bottom:none;}
+  .uniform-config-row .uc-day-label{
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .uniform-toggle{
+    display:flex;
+    gap:6px;
+  }
+  .uniform-toggle button{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    padding:6px 13px;
+    border-radius:20px;
+    border:1px solid var(--gray-light);
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .uniform-toggle button.active-gris{
+    background:var(--uniform-gray);
+    border-color:var(--uniform-gray);
+    color:#fff;
+  }
+  .uniform-toggle button.active-rojo{
+    background:var(--red);
+    border-color:var(--red);
+    color:#fff;
+  }
+
+  /* Secciones delimitadas del panel de configuración */
+  .settings-section{
+    border:1px solid var(--gray-light);
+    border-radius:12px;
+    padding:18px 16px;
+    margin-bottom:16px;
+    background:#fcfbf9;
+  }
+  .settings-section:last-child{margin-bottom:0;}
+  .section-title{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink);
+    margin-bottom:16px;
+  }
+  .section-num{
+    width:20px;height:20px;
+    border-radius:50%;
+    background:var(--red);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-grid">
+    <img class="brand-logo" src="data:image/webp;base64,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" alt="Liceo Taller San Miguel">
+    <button class="settings-btn" id="settingsBtn" aria-label="Configuración">⚙</button>
+    <h1>Horario<span class="curso-badge" id="cursoBadge"></span></h1>
+    <div class="student-name" id="studentNameDisplay"></div>
+  </div>
+  <div class="sub">Calendario por ciclos de 6 días</div>
+</header>
+
+<div class="week-nav">
+  <button id="prevWeek" aria-label="Semana anterior">‹</button>
+  <div>
+    <div class="week-label" id="weekLabel">—</div>
+    <button class="today-btn" id="goToday">HOY</button>
+  </div>
+  <button id="nextWeek" aria-label="Semana siguiente">›</button>
+</div>
+
+<main>
+  <div class="days" id="daysContainer"></div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="sheet-header">
+      <div class="grip"></div>
+      <div class="title-row">
+        <div style="flex:1;">
+          <h2 id="sheetTitle">Día</h2>
+          <div class="sheet-sub" id="sheetSub">Ciclo</div>
+        </div>
+        <div class="mascot-wrap" id="mascotWrap">
+          <span class="uniform-tag" id="uniformTag">Uniforme</span>
+        </div>
+        <button class="close-btn" id="closeBtn" style="margin-left:8px;">✕</button>
+      </div>
+    </div>
+    <div class="subjects" id="subjectsList"></div>
+    <div class="event-footer" id="eventFooter" style="display:none;">
+      <div class="event-footer-icon">★</div>
+      <div class="event-footer-text" id="eventFooterText"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="sheet">
+    <div class="sheet-header">
+      <div class="grip"></div>
+      <div class="title-row">
+        <div style="flex:1;">
+          <h2>Configuración</h2>
+          <div class="sheet-sub">Curso y asignaturas</div>
+        </div>
+        <button class="close-btn" id="settingsCloseBtn">✕</button>
+      </div>
+    </div>
+    <div class="settings-body">
+
+      <div class="settings-section">
+        <div class="section-title"><span class="section-num">1</span>Estudiante y curso</div>
+        <div class="field-block">
+          <label class="field-label">Estudiante</label>
+          <input type="text" id="estudianteInput" class="text-input" placeholder="Nombre del estudiante">
+        </div>
+        <div class="field-block" style="margin-bottom:0;">
+          <label class="field-label">Curso</label>
+          <input type="text" id="cursoInput" class="text-input" maxlength="3" placeholder="Ej: 6A">
+          <div class="field-help">Máximo 2 números y 1 letra (ej: 6A, 10B). El curso se mostrará junto al título.</div>
+        </div>
+        <button class="action-btn full" id="saveStudentBtn">Guardar</button>
+        <div class="status-msg" id="studentStatus"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="section-title"><span class="section-num">2</span>Uniforme por día del ciclo</div>
+        <div id="uniformEditor"></div>
+        <button class="action-btn full" id="saveUniformsBtn">Guardar uniformes</button>
+        <div class="status-msg" id="uniformsStatus"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="section-title"><span class="section-num">3</span>Asignaturas por día del ciclo</div>
+        <div class="day-pills" id="dayPills"></div>
+        <div id="subjectsEditor"></div>
+        <button class="action-btn full" id="saveSubjectsBtn">Guardar asignaturas</button>
+        <div class="status-msg" id="subjectsStatus"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- Calendario por ciclos (Ago–Nov 2026), Liceo Taller San Miguel ----------
+// Cada entrada: "YYYY-MM-DD": { day: 1-6 } o { special: "texto" }
+const CYCLE_MAP = {
+  // Julio 2026
+  "2026-07-01": {special:"Matrículas K1 - 3°"},
+  "2026-07-02": {special:"Matrículas 4° - 7°"},
+  "2026-07-03": {special:"Matrículas 8° - 12°"},
+  "2026-07-20": {special:"Holiday"},
+  "2026-07-21": {special:"Regreso personal directivo"},
+  "2026-07-22": {special:"Regreso jefes de área y personal de apoyo"},
+  "2026-07-23": {special:"Primer día personal nuevo · Inducción"},
+  "2026-07-24": {special:"Inducción personal nuevo"},
+  "2026-07-27": {special:"Regreso resto de docentes · Semana de inducción"},
+  "2026-07-28": {special:"Semana de inducción para todo el personal"},
+  "2026-07-29": {special:"Semana de inducción para todo el personal"},
+  "2026-07-30": {special:"Semana de inducción para todo el personal"},
+  "2026-07-31": {special:"Semana de inducción para todo el personal"},
+  // Agosto 2026
+  "2026-08-03": {special:"Semana de inducción para todo el personal"},
+  "2026-08-04": {special:"Semana de inducción para todo el personal"},
+  "2026-08-05": {special:"Semana de inducción para todo el personal"},
+  "2026-08-06": {special:"Semana de inducción para todo el personal"},
+  "2026-08-07": {special:"Holiday"},
+  "2026-08-10": {cycle:1, day:1, event:"Primer día de clases · Inicia 1er trimestre · Welcome Mass"},
+  "2026-08-11": {cycle:1, day:2},
+  "2026-08-12": {cycle:1, day:3},
+  "2026-08-13": {cycle:1, day:4},
+  "2026-08-14": {cycle:1, day:5},
+  "2026-08-17": {special:"Holiday"},
+  "2026-08-18": {cycle:1, day:6},
+  "2026-08-19": {cycle:2, day:1},
+  "2026-08-20": {cycle:2, day:2},
+  "2026-08-21": {cycle:2, day:3},
+  "2026-08-24": {cycle:2, day:4, event:"Mini Assembly · Becas a la Excelencia"},
+  "2026-08-25": {cycle:2, day:5},
+  "2026-08-26": {cycle:2, day:6, event:"Debate personería"},
+  "2026-08-27": {cycle:3, day:1, event:"Pensar 1 · Exámenes diagnósticos"},
+  "2026-08-28": {cycle:3, day:2},
+  "2026-08-31": {cycle:3, day:3},
+  // Septiembre 2026
+  "2026-09-01": {cycle:3, day:4, event:"Elección del Personero"},
+  "2026-09-02": {cycle:3, day:5},
+  "2026-09-03": {cycle:3, day:6},
+  "2026-09-04": {cycle:4, day:1},
+  "2026-09-07": {cycle:4, day:2},
+  "2026-09-08": {cycle:4, day:3},
+  "2026-09-09": {cycle:4, day:4},
+  "2026-09-10": {cycle:4, day:5},
+  "2026-09-11": {cycle:4, day:6},
+  "2026-09-14": {cycle:5, day:1, event:"Mid Term Report"},
+  "2026-09-15": {cycle:5, day:2, event:"Mid Term Report"},
+  "2026-09-16": {cycle:5, day:3, event:"Mid Term Report"},
+  "2026-09-17": {cycle:5, day:4, event:"Mid Term Report"},
+  "2026-09-18": {cycle:5, day:5, event:"Mid Term Report"},
+  "2026-09-22": {cycle:5, day:6, event:"Mid Term Report"},
+  "2026-09-23": {cycle:6, day:1},
+  "2026-09-24": {cycle:6, day:2},
+  "2026-09-25": {cycle:6, day:3},
+  "2026-09-28": {cycle:6, day:4, event:"LTSM Day · Misa de San Miguel"},
+  "2026-09-29": {cycle:6, day:5},
+  "2026-09-30": {cycle:6, day:6},
+  // Octubre 2026
+  "2026-10-01": {cycle:7, day:1},
+  "2026-10-02": {cycle:7, day:2, event:"Ceremonia de apertura Interclases"},
+  "2026-10-05": {special:"Desarrollo profesional"},
+  "2026-10-06": {special:"Desarrollo profesional"},
+  "2026-10-07": {special:"Semana de receso"},
+  "2026-10-08": {special:"Semana de receso"},
+  "2026-10-09": {special:"Semana de receso"},
+  "2026-10-12": {special:"Holiday"},
+  "2026-10-13": {cycle:7, day:3},
+  "2026-10-14": {cycle:7, day:4},
+  "2026-10-15": {cycle:7, day:5},
+  "2026-10-16": {cycle:7, day:6},
+  "2026-10-19": {cycle:8, day:1, event:"Semana de la Salud"},
+  "2026-10-20": {cycle:8, day:2, event:"Semana de la Salud"},
+  "2026-10-21": {cycle:8, day:3, event:"Semana de la Salud"},
+  "2026-10-22": {cycle:8, day:4, event:"Semana de la Salud"},
+  "2026-10-23": {cycle:8, day:5, event:"Semana de la Salud"},
+  "2026-10-26": {cycle:8, day:6},
+  "2026-10-27": {cycle:9, day:1},
+  "2026-10-28": {cycle:9, day:2},
+  "2026-10-29": {cycle:9, day:3},
+  "2026-10-30": {cycle:9, day:4, event:"Fantasy Day"},
+  // Noviembre 2026
+  "2026-11-02": {special:"Holiday"},
+  "2026-11-03": {cycle:9, day:5},
+  "2026-11-04": {cycle:9, day:6},
+  "2026-11-05": {cycle:10, day:1},
+  "2026-11-06": {cycle:10, day:2},
+  "2026-11-09": {cycle:10, day:3},
+  "2026-11-10": {cycle:10, day:4},
+  "2026-11-11": {cycle:10, day:5},
+  "2026-11-12": {cycle:10, day:6, event:"Último día del primer trimestre (cierre de plataforma)"},
+  "2026-11-13": {special:"Comité académico · No hay clase"},
+  "2026-11-16": {special:"Holiday"},
+  "2026-11-17": {special:"Jornada de planeación · No hay clase"},
+  "2026-11-18": {cycle:11, day:1, event:"Inicia segundo trimestre · Asamblea"},
+  "2026-11-19": {cycle:11, day:2},
+  "2026-11-20": {special:"Entrega de informes a padres"},
+  "2026-11-23": {cycle:11, day:3},
+  "2026-11-24": {cycle:11, day:4, event:"Pensar Exams 2"},
+  "2026-11-25": {cycle:11, day:5},
+  "2026-11-26": {cycle:11, day:6, event:"Thanksgiving Day · Misa"},
+  "2026-11-27": {cycle:12, day:1},
+  "2026-11-30": {cycle:12, day:2},
+  // Diciembre 2026
+  "2026-12-01": {cycle:12, day:3, event:"Festividad de Navidad"},
+  "2026-12-02": {cycle:12, day:4},
+  "2026-12-03": {cycle:12, day:5},
+  "2026-12-04": {cycle:12, day:6},
+  "2026-12-07": {cycle:13, day:1},
+  "2026-12-08": {special:"Holiday"},
+  "2026-12-09": {cycle:13, day:2},
+  "2026-12-10": {cycle:13, day:3},
+  "2026-12-11": {cycle:13, day:4},
+  "2026-12-14": {cycle:13, day:5},
+  "2026-12-15": {cycle:13, day:6},
+  "2026-12-16": {cycle:14, day:1, event:"Inicia vacaciones · Show de Navidad · Novena de Navidad"},
+  "2026-12-25": {special:"Holiday"},
+  // Enero 2027
+  "2027-01-01": {special:"Holiday"},
+  "2027-01-07": {special:"Desarrollo profesional"},
+  "2027-01-08": {special:"Desarrollo profesional"},
+  "2027-01-11": {special:"Holiday"},
+  "2027-01-12": {cycle:15, day:1, event:"Regreso a clases de estudiantes"},
+  "2027-01-13": {cycle:15, day:2},
+  "2027-01-14": {cycle:15, day:3},
+  "2027-01-15": {cycle:15, day:4},
+  "2027-01-18": {cycle:15, day:5},
+  "2027-01-19": {cycle:15, day:6, event:"Mid Term Report"},
+  "2027-01-20": {cycle:16, day:1, event:"Mid Term Report"},
+  "2027-01-21": {cycle:16, day:2, event:"Mid Term Report"},
+  "2027-01-22": {cycle:16, day:3, event:"Mid Term Report"},
+  "2027-01-25": {cycle:16, day:4, event:"Mid Term Report"},
+  "2027-01-26": {cycle:16, day:5, event:"Mid Term Report"},
+  "2027-01-27": {cycle:16, day:6},
+  "2027-01-28": {cycle:17, day:1},
+  "2027-01-29": {cycle:17, day:2},
+  // Febrero 2027
+  "2027-02-01": {cycle:17, day:3},
+  "2027-02-02": {cycle:17, day:4},
+  "2027-02-03": {cycle:17, day:5},
+  "2027-02-04": {cycle:17, day:6},
+  "2027-02-05": {cycle:18, day:1, event:"Aniversario 30° LTSM"},
+  "2027-02-08": {cycle:18, day:2},
+  "2027-02-09": {cycle:18, day:3},
+  "2027-02-10": {cycle:18, day:4},
+  "2027-02-11": {cycle:18, day:5},
+  "2027-02-12": {cycle:18, day:6},
+  "2027-02-15": {cycle:19, day:1},
+  "2027-02-16": {cycle:19, day:2},
+  "2027-02-17": {cycle:19, day:3},
+  "2027-02-18": {cycle:19, day:4},
+  "2027-02-19": {special:"Desarrollo profesional"},
+  "2027-02-22": {cycle:19, day:5},
+  "2027-02-23": {cycle:19, day:6},
+  "2027-02-24": {cycle:20, day:1},
+  "2027-02-25": {cycle:20, day:2},
+  "2027-02-26": {cycle:20, day:3},
+  // Marzo 2027
+  "2027-03-01": {cycle:20, day:4},
+  "2027-03-02": {cycle:20, day:5},
+  "2027-03-03": {cycle:20, day:6},
+  "2027-03-04": {cycle:21, day:1, event:"Último día del segundo trimestre (cierre de plataforma)"},
+  "2027-03-05": {special:"Comité académico · No hay clase"},
+  "2027-03-08": {special:"Jornada de planeación · No hay clase"},
+  "2027-03-09": {cycle:21, day:2, event:"Inicia tercer trimestre"},
+  "2027-03-10": {cycle:21, day:3},
+  "2027-03-11": {cycle:21, day:4, event:"Asamblea · Semana STEAM"},
+  "2027-03-12": {special:"Entrega de informes a padres"},
+  "2027-03-15": {cycle:21, day:5, event:"Semana STEAM"},
+  "2027-03-16": {cycle:21, day:6, event:"Semana STEAM"},
+  "2027-03-17": {cycle:22, day:1, event:"Semana STEAM"},
+  "2027-03-18": {cycle:22, day:2, event:"Semana STEAM"},
+  "2027-03-19": {cycle:22, day:3, event:"Semana STEAM · Expo Arte I"},
+  "2027-03-22": {special:"Semana de receso · Semana Santa"},
+  "2027-03-23": {special:"Semana de receso · Semana Santa"},
+  "2027-03-24": {special:"Semana de receso · Semana Santa"},
+  "2027-03-25": {special:"Semana de receso · Semana Santa"},
+  "2027-03-26": {special:"Semana de receso · Semana Santa"},
+  "2027-03-29": {cycle:22, day:4, event:"Regreso de estudiantes (fin Semana Santa)"},
+  "2027-03-30": {cycle:22, day:5},
+  "2027-03-31": {cycle:22, day:6},
+  // Abril 2027
+  "2027-04-01": {cycle:23, day:1},
+  "2027-04-02": {cycle:23, day:2, event:"Expo Arte II"},
+  "2027-04-05": {cycle:23, day:3},
+  "2027-04-06": {cycle:23, day:4},
+  "2027-04-07": {cycle:23, day:5},
+  "2027-04-08": {cycle:23, day:6},
+  "2027-04-09": {cycle:24, day:1},
+  "2027-04-12": {cycle:24, day:2, event:"Pensar Exams 3"},
+  "2027-04-13": {cycle:24, day:3},
+  "2027-04-14": {cycle:24, day:4},
+  "2027-04-15": {cycle:24, day:5},
+  "2027-04-16": {special:"Desarrollo profesional"},
+  "2027-04-19": {cycle:24, day:6, event:"Mid Term Report"},
+  "2027-04-20": {cycle:25, day:1, event:"Mid Term Report"},
+  "2027-04-21": {cycle:25, day:2, event:"Mid Term Report"},
+  "2027-04-22": {cycle:25, day:3, event:"Mid Term Report"},
+  "2027-04-23": {cycle:25, day:4, event:"Mid Term Report · Día de los Idiomas · Día del Niño"},
+  "2027-04-26": {cycle:25, day:5, event:"Mid Term Report"},
+  "2027-04-27": {cycle:25, day:6},
+  "2027-04-28": {cycle:26, day:1},
+  "2027-04-29": {cycle:26, day:2},
+  "2027-04-30": {cycle:26, day:3},
+  // Mayo 2027
+  "2027-05-03": {cycle:26, day:4},
+  "2027-05-04": {cycle:26, day:5},
+  "2027-05-05": {cycle:26, day:6},
+  "2027-05-06": {cycle:27, day:1},
+  "2027-05-07": {cycle:27, day:2},
+  "2027-05-10": {special:"Holiday"},
+  "2027-05-11": {cycle:27, day:3},
+  "2027-05-12": {cycle:27, day:4},
+  "2027-05-13": {cycle:27, day:5},
+  "2027-05-14": {special:"No hay clase · Día del Maestro"},
+  "2027-05-17": {cycle:27, day:6},
+  "2027-05-18": {cycle:28, day:1},
+  "2027-05-19": {cycle:28, day:2},
+  "2027-05-20": {cycle:28, day:3},
+  "2027-05-21": {cycle:28, day:4},
+  "2027-05-24": {cycle:28, day:5},
+  "2027-05-25": {cycle:28, day:6},
+  "2027-05-26": {cycle:29, day:1},
+  "2027-05-27": {cycle:29, day:2},
+  "2027-05-28": {cycle:29, day:3},
+  "2027-05-31": {special:"Holiday"},
+  // Junio 2027
+  "2027-06-01": {cycle:29, day:4},
+  "2027-06-02": {cycle:29, day:5},
+  "2027-06-03": {cycle:29, day:6},
+  "2027-06-04": {cycle:30, day:1},
+  "2027-06-07": {special:"Holiday"},
+  "2027-06-08": {cycle:30, day:2, event:"Senior Project"},
+  "2027-06-09": {cycle:30, day:3, event:"Sport Day · Cierre de plataforma"},
+  "2027-06-10": {cycle:30, day:4, event:"Asamblea PS y ES"},
+  "2027-06-11": {cycle:30, day:5, event:"Asamblea MS y HS · Último día de clases para estudiantes"},
+  "2027-06-14": {special:"Comité académico"},
+  "2027-06-15": {special:"Cierre de año escolar · PIAR cierre de trimestre"},
+  "2027-06-16": {special:"Cierre de año escolar · PIAR cierre de trimestre"},
+  "2027-06-17": {special:"Cierre de año escolar · PIAR cierre de trimestre"},
+  "2027-06-18": {special:"Entrega de informes a padres"},
+  "2027-06-21": {special:"Inicio vacaciones recreativas"},
+  "2027-06-23": {special:"Exámenes de habilitación"},
+  "2027-06-25": {special:"Ceremonia de graduación"},
+  // Julio 2027
+  "2027-07-01": {special:"Matrículas"},
+  "2027-07-02": {special:"Matrículas"},
+  "2027-07-09": {special:"Fin vacaciones recreativas"},
+  "2027-07-20": {special:"Holiday"},
+  "2027-07-21": {special:"Regreso jefes de área y personal de apoyo"},
+  "2027-07-22": {special:"Primer día personal nuevo"},
+  "2027-07-23": {special:"Inducción personal nuevo"},
+  "2027-07-26": {special:"Regreso resto de docentes · Semana de inducción"},
+  "2027-07-27": {special:"Semana de inducción para todo el personal"},
+  "2027-07-28": {special:"Semana de inducción para todo el personal"},
+  "2027-07-29": {special:"Semana de inducción para todo el personal"},
+  "2027-07-30": {special:"Semana de inducción para todo el personal"},
+  // Agosto 2027
+  "2027-08-02": {special:"Semana de inducción para todo el personal"},
+  "2027-08-03": {special:"Semana de inducción para todo el personal"},
+  "2027-08-04": {special:"Semana de inducción para todo el personal"},
+  "2027-08-05": {special:"Semana de inducción para todo el personal"},
+  "2027-08-06": {special:"Semana de inducción para todo el personal"},
+  "2027-08-09": {special:"Primer día de clases · Inicia 1er trimestre · Welcome Mass"},
+  "2027-08-16": {special:"Holiday"},
+};
+
+// ---------- Asignaturas por día del ciclo (valores por defecto) ----------
+const DEFAULT_SUBJECTS = {
+  1: ["Progrentis","Español","BREAK","Science","Sociales","Math","LUNCH","English","English"],
+  2: ["Sociales","Math","BREAK","Science","Science","Español","LUNCH","Identidad Sanmiguel","Francés"],
+  3: ["English","Sociales","BREAK","Francés","English","Pensamiento Comp.","LUNCH","Educación física","SIAI"],
+  4: ["Science","Francés","BREAK","Sociales","Math","English","LUNCH","Español","Study Hall"],
+  5: ["Español","Math","BREAK","Science","Educación Física","Identidad Sanmiguel","LUNCH","Sociales","SIAI"],
+  6: ["Homeroom","Math","BREAK","Electiva","Visual Arts","Visual Arts","LUNCH","English","Español"],
+};
+
+// ---------- Almacenamiento persistente (localStorage con respaldo en memoria) ----------
+const STORAGE_KEY_CURSO = 'sm_horario_curso';
+const STORAGE_KEY_ESTUDIANTE = 'sm_horario_estudiante';
+const STORAGE_KEY_SUBJECTS = 'sm_horario_subjects';
+let memoryStore = {};
+function storageGet(key){
+  try{ return localStorage.getItem(key); }
+  catch(e){ return memoryStore[key] !== undefined ? memoryStore[key] : null; }
+}
+function storageSet(key, value){
+  try{ localStorage.setItem(key, value); }
+  catch(e){ memoryStore[key] = value; }
+}
+
+// Estado efectivo de asignaturas: por defecto + lo que el usuario haya editado
+let SUBJECTS = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
+(function loadSubjectsFromStorage(){
+  const saved = storageGet(STORAGE_KEY_SUBJECTS);
+  if(saved){
+    try{
+      const parsed = JSON.parse(saved);
+      Object.keys(parsed).forEach(day=>{ SUBJECTS[day] = parsed[day]; });
+    }catch(e){ /* ignora datos corruptos */ }
+  }
+})();
+
+// Uniforme según el día del ciclo: valor por defecto (rojo en 3 y 5, gris el resto)
+const STORAGE_KEY_UNIFORMS = 'sm_horario_uniforms';
+const UNIFORM_BY_DAY = { 1:"gris", 2:"gris", 3:"rojo", 4:"gris", 5:"rojo", 6:"gris" };
+(function loadUniformsFromStorage(){
+  const saved = storageGet(STORAGE_KEY_UNIFORMS);
+  if(saved){
+    try{
+      const parsed = JSON.parse(saved);
+      Object.keys(parsed).forEach(day=>{
+        if(parsed[day]==='gris' || parsed[day]==='rojo'){ UNIFORM_BY_DAY[day] = parsed[day]; }
+      });
+    }catch(e){ /* ignora datos corruptos */ }
+  }
+})();
+const WEEKDAY_NAMES = ["Lunes","Martes","Miércoles","Jueves","Viernes"];
+const MONTH_NAMES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+function toKey(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function getMonday(d){
+  const date = new Date(d);
+  const dow = date.getDay(); // 0 Sun ... 6 Sat
+  const diff = dow===0 ? -6 : 1-dow;
+  date.setDate(date.getDate()+diff);
+  date.setHours(0,0,0,0);
+  return date;
+}
+
+let currentMonday = getMonday(new Date());
+const todayKey = toKey(new Date());
+
+function render(){
+  const container = document.getElementById('daysContainer');
+  container.innerHTML = '';
+
+  const startLabel = currentMonday;
+  const endLabel = new Date(currentMonday); endLabel.setDate(endLabel.getDate()+4);
+  document.getElementById('weekLabel').textContent =
+    `${startLabel.getDate()} ${MONTH_NAMES[startLabel.getMonth()]} – ${endLabel.getDate()} ${MONTH_NAMES[endLabel.getMonth()]} ${endLabel.getFullYear()}`;
+
+  for(let i=0;i<5;i++){
+    const d = new Date(currentMonday);
+    d.setDate(d.getDate()+i);
+    const key = toKey(d);
+    const info = CYCLE_MAP[key];
+    const isToday = key===todayKey;
+
+    const card = document.createElement('div');
+    let uniformClass = '';
+    if(info && info.day){
+      uniformClass = ' uniform-' + UNIFORM_BY_DAY[info.day];
+    }
+    card.className = 'day-card' + (isToday?' today':'') + (info && info.special ? ' special':'') + uniformClass;
+
+    let tagHtml, subLabel;
+    if(info && info.day){
+      tagHtml = `<span class="cycle-tag">Ciclo ${info.cycle} · Día ${info.day}</span>`;
+    } else if(info && info.special){
+      tagHtml = `<span class="cycle-tag special">${info.special}</span>`;
+    } else {
+      tagHtml = `<span class="cycle-tag special">Sin datos</span>`;
+    }
+
+    card.innerHTML = `
+      <div class="day-top">
+        <div class="day-name-block">
+          <span class="weekday">${WEEKDAY_NAMES[i]}</span>
+          <span class="date-num">${d.getDate()} ${MONTH_NAMES[d.getMonth()]}</span>
+          ${isToday ? '<span class="today-pill">HOY</span>' : ''}
+        </div>
+        <div style="display:flex;align-items:center;">
+          ${tagHtml}
+          <span class="chevron">›</span>
+        </div>
+      </div>
+      ${info && info.event ? `<div style="margin-top:8px;font-size:12px;color:var(--red);font-weight:600;">${info.event}</div>` : ''}
+    `;
+
+    card.addEventListener('click', ()=>openSheet(d, info, WEEKDAY_NAMES[i]));
+    container.appendChild(card);
+  }
+}
+
+function openSheet(date, info, weekdayName){
+  const overlay = document.getElementById('overlay');
+  const title = document.getElementById('sheetTitle');
+  const sub = document.getElementById('sheetSub');
+  const list = document.getElementById('subjectsList');
+  const eventFooter = document.getElementById('eventFooter');
+  const eventFooterText = document.getElementById('eventFooterText');
+
+  title.textContent = `${weekdayName} ${date.getDate()} de ${MONTH_NAMES[date.getMonth()]}`;
+
+  const mascotWrap = document.getElementById('mascotWrap');
+  const uniformTag = document.getElementById('uniformTag');
+
+  list.innerHTML = '';
+  eventFooter.style.display = 'none';
+
+  if(info && info.day){
+    sub.textContent = `Ciclo ${info.cycle} · Día ${info.day}`;
+    const uniform = UNIFORM_BY_DAY[info.day];
+    uniformTag.textContent = `Uniforme ${uniform}`;
+    mascotWrap.style.display = 'block';
+    SUBJECTS[info.day].forEach((subj, idx)=>{
+      const row = document.createElement('div');
+      const cls = subj==='BREAK' ? 'break' : (subj==='LUNCH' ? 'lunch' : '');
+      row.className = 'subj-row ' + cls;
+      row.innerHTML = `<div class="subj-idx">${idx+1}</div><div class="subj-name">${subj==='BREAK'?'Descanso':subj==='LUNCH'?'Almuerzo':subj}</div>`;
+      list.appendChild(row);
+    });
+    if(info.event){
+      eventFooterText.textContent = info.event;
+      eventFooter.style.display = 'flex';
+    }
+  } else if(info && info.special){
+    sub.textContent = info.special;
+    mascotWrap.style.display = 'none';
+    list.innerHTML = `<div class="no-data">No hay asignaturas programadas para este día.</div>`;
+  } else {
+    sub.textContent = 'Sin información';
+    mascotWrap.style.display = 'none';
+    list.innerHTML = `<div class="no-data">Este día está fuera del rango del calendario cargado (julio 2026 – agosto 2027).</div>`;
+  }
+
+  overlay.classList.add('show');
+}
+
+document.getElementById('closeBtn').addEventListener('click', ()=>{
+  document.getElementById('overlay').classList.remove('show');
+});
+document.getElementById('overlay').addEventListener('click', (e)=>{
+  if(e.target.id==='overlay') e.target.classList.remove('show');
+});
+document.getElementById('prevWeek').addEventListener('click', ()=>{
+  currentMonday.setDate(currentMonday.getDate()-7);
+  render();
+});
+document.getElementById('nextWeek').addEventListener('click', ()=>{
+  currentMonday.setDate(currentMonday.getDate()+7);
+  render();
+});
+document.getElementById('goToday').addEventListener('click', ()=>{
+  currentMonday = getMonday(new Date());
+  render();
+});
+
+// ---------- Panel de configuración ----------
+const SUBJECT_LABELS = ["1ª clase","2ª clase","Descanso","3ª clase","4ª clase","5ª clase","Almuerzo","6ª clase","7ª clase"];
+const FIXED_INDEXES = [2, 6]; // BREAK y LUNCH: posiciones fijas, no editables
+let selectedEditDay = 1;
+let draftSubjects = null;
+let draftUniforms = null;
+
+function loadCursoBadge(){
+  const curso = storageGet(STORAGE_KEY_CURSO);
+  const badge = document.getElementById('cursoBadge');
+  if(curso){
+    badge.textContent = curso;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function loadStudentNameDisplay(){
+  const nombre = storageGet(STORAGE_KEY_ESTUDIANTE);
+  document.getElementById('studentNameDisplay').textContent = nombre || '';
+}
+
+function renderUniformEditor(){
+  const wrap = document.getElementById('uniformEditor');
+  wrap.innerHTML = '';
+  for(let d=1; d<=6; d++){
+    const row = document.createElement('div');
+    row.className = 'uniform-config-row';
+
+    const label = document.createElement('div');
+    label.className = 'uc-day-label';
+    label.textContent = 'Día ' + d;
+
+    const toggle = document.createElement('div');
+    toggle.className = 'uniform-toggle';
+
+    const btnGris = document.createElement('button');
+    btnGris.type = 'button';
+    btnGris.textContent = 'Uniforme gris';
+    const btnRojo = document.createElement('button');
+    btnRojo.type = 'button';
+    btnRojo.textContent = 'Uniforme rojo';
+
+    function refreshActive(){
+      btnGris.className = draftUniforms[d]==='gris' ? 'active-gris' : '';
+      btnRojo.className = draftUniforms[d]==='rojo' ? 'active-rojo' : '';
+    }
+    refreshActive();
+
+    btnGris.addEventListener('click', ()=>{ draftUniforms[d] = 'gris'; refreshActive(); });
+    btnRojo.addEventListener('click', ()=>{ draftUniforms[d] = 'rojo'; refreshActive(); });
+
+    toggle.appendChild(btnGris);
+    toggle.appendChild(btnRojo);
+    row.appendChild(label);
+    row.appendChild(toggle);
+    wrap.appendChild(row);
+  }
+}
+
+function renderDayPills(){
+  const wrap = document.getElementById('dayPills');
+  wrap.innerHTML = '';
+  for(let d=1; d<=6; d++){
+    const pill = document.createElement('button');
+    pill.type = 'button';
+    pill.className = 'day-pill' + (d===selectedEditDay ? ' active' : '');
+    pill.textContent = 'Día ' + d;
+    pill.addEventListener('click', ()=>{
+      saveCurrentEditorIntoDraft();
+      selectedEditDay = d;
+      renderDayPills();
+      renderSubjectsEditor();
+    });
+    wrap.appendChild(pill);
+  }
+}
+
+function renderSubjectsEditor(){
+  const wrap = document.getElementById('subjectsEditor');
+  wrap.innerHTML = '';
+  const list = draftSubjects[selectedEditDay];
+  list.forEach((subj, idx)=>{
+    const row = document.createElement('div');
+    const isFixed = FIXED_INDEXES.includes(idx);
+    row.className = 'subject-edit-row' + (isFixed ? ' fixed' : '');
+    const label = document.createElement('div');
+    label.className = 'subj-num';
+    label.textContent = idx+1;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.dataset.idx = idx;
+    if(isFixed){
+      input.value = subj === 'BREAK' ? 'Descanso (fijo)' : 'Almuerzo (fijo)';
+      input.disabled = true;
+    } else {
+      input.value = subj;
+    }
+    row.appendChild(label);
+    row.appendChild(input);
+    wrap.appendChild(row);
+  });
+}
+
+function saveCurrentEditorIntoDraft(){
+  const wrap = document.getElementById('subjectsEditor');
+  const inputs = wrap.querySelectorAll('input');
+  inputs.forEach(input=>{
+    const idx = parseInt(input.dataset.idx, 10);
+    if(!FIXED_INDEXES.includes(idx)){
+      draftSubjects[selectedEditDay][idx] = input.value.trim() || draftSubjects[selectedEditDay][idx];
+    }
+  });
+}
+
+document.getElementById('settingsBtn').addEventListener('click', ()=>{
+  document.getElementById('estudianteInput').value = storageGet(STORAGE_KEY_ESTUDIANTE) || '';
+  document.getElementById('cursoInput').value = storageGet(STORAGE_KEY_CURSO) || '';
+  document.getElementById('studentStatus').textContent = '';
+  document.getElementById('subjectsStatus').textContent = '';
+  document.getElementById('uniformsStatus').textContent = '';
+  draftSubjects = JSON.parse(JSON.stringify(SUBJECTS));
+  draftUniforms = JSON.parse(JSON.stringify(UNIFORM_BY_DAY));
+  selectedEditDay = 1;
+  renderUniformEditor();
+  renderDayPills();
+  renderSubjectsEditor();
+  document.getElementById('settingsOverlay').classList.add('show');
+});
+document.getElementById('settingsCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('settingsOverlay').classList.remove('show');
+});
+document.getElementById('settingsOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='settingsOverlay') e.target.classList.remove('show');
+});
+
+document.getElementById('saveStudentBtn').addEventListener('click', ()=>{
+  const estudianteInput = document.getElementById('estudianteInput');
+  const cursoInput = document.getElementById('cursoInput');
+  const status = document.getElementById('studentStatus');
+  const cursoValue = cursoInput.value.trim().toUpperCase();
+
+  if(cursoValue !== '' && !/^[0-9]{1,2}[A-Z]$/.test(cursoValue)){
+    status.className = 'status-msg error';
+    status.textContent = 'Curso inválido. Usa máximo 2 números y 1 letra (ej: 6A).';
+    return;
+  }
+
+  storageSet(STORAGE_KEY_ESTUDIANTE, estudianteInput.value.trim());
+  storageSet(STORAGE_KEY_CURSO, cursoValue);
+  loadCursoBadge();
+  loadStudentNameDisplay();
+  status.className = 'status-msg success';
+  status.textContent = 'Guardado ✓';
+});
+
+document.getElementById('saveUniformsBtn').addEventListener('click', ()=>{
+  Object.assign(UNIFORM_BY_DAY, draftUniforms);
+  storageSet(STORAGE_KEY_UNIFORMS, JSON.stringify(UNIFORM_BY_DAY));
+  render();
+  const status = document.getElementById('uniformsStatus');
+  status.className = 'status-msg success';
+  status.textContent = 'Uniformes guardados ✓';
+});
+
+document.getElementById('saveSubjectsBtn').addEventListener('click', ()=>{
+  saveCurrentEditorIntoDraft();
+  SUBJECTS = JSON.parse(JSON.stringify(draftSubjects));
+  storageSet(STORAGE_KEY_SUBJECTS, JSON.stringify(SUBJECTS));
+  const status = document.getElementById('subjectsStatus');
+  status.className = 'status-msg success';
+  status.textContent = 'Asignaturas guardadas ✓';
+});
+
+loadCursoBadge();
+loadStudentNameDisplay();
+render();
+
+</script>
+</body>
+</html>
