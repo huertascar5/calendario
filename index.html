@@ -246,7 +246,14 @@
     background:#fffdf7;
   }
   .day-card.special{
-    border-left-color:var(--gray);
+    border-left-color:var(--gold);
+    background:repeating-linear-gradient(135deg, #fff 0px, #fff 11px, #fbf3e3 11px, #fbf3e3 22px);
+  }
+  .day-card.special .weekday{
+    color:var(--gray);
+  }
+  .day-card.special .date-num{
+    opacity:0.75;
   }
   .day-top{
     display:flex;
@@ -281,8 +288,8 @@
     white-space:nowrap;
   }
   .cycle-tag.special{
-    color:var(--gray);
-    background:var(--gray-light);
+    color:#8a5a12;
+    background:#fbeccb;
   }
   .today-pill{
     font-size:10px;
@@ -701,7 +708,7 @@
 
 <section class="upcoming-section">
   <div class="upcoming-header">
-    <div class="upcoming-title">Próximas Actividades</div>
+    <div class="upcoming-title">Próximas tareas</div>
     <span class="upcoming-badge">Próximamente</span>
   </div>
   <div class="upcoming-carousel" id="upcomingCarousel">
@@ -710,7 +717,7 @@
         <span class="task-tag">Math</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">(Prueba) Taller de ecuaciones</div>
+      <div class="task-title">Entrega taller de fracciones</div>
       <div class="task-meta">🗓 Vence en 3 días</div>
     </div>
     <div class="task-card">
@@ -718,7 +725,7 @@
         <span class="task-tag">Science</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">(Prueba) Quiz: Sistema nervioso</div>
+      <div class="task-title">Quiz: ciclo del agua</div>
       <div class="task-meta">🗓 Vence el viernes</div>
     </div>
     <div class="task-card">
@@ -726,7 +733,7 @@
         <span class="task-tag">Español</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">(Prueba) Ensayo: Libro favorito</div>
+      <div class="task-title">Ensayo: mi libro favorito</div>
       <div class="task-meta">🗓 Próxima semana</div>
     </div>
     <div class="task-card">
@@ -734,7 +741,7 @@
         <span class="task-tag">Sociales</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">(Prueba) Proyecto: Comunidad</div>
+      <div class="task-title">Proyecto: mi comunidad</div>
       <div class="task-meta">🗓 Sin fecha definida</div>
     </div>
   </div>
