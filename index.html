@@ -134,10 +134,13 @@
     gap:10px;
   }
 
-  /* Próximas tareas (carrusel - vista previa) */
+  /* Próximas actividades (carrusel - vista previa) */
   .upcoming-section{
-    margin-top:26px;
-    padding-bottom:28px;
+    margin-top:30px;
+    padding:20px 0 26px 0;
+    background:#f3f0ea;
+    border-top:1px solid var(--gray-light);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
   }
   .upcoming-header{
     display:flex;
@@ -679,9 +682,74 @@
     display:flex;align-items:center;justify-content:center;
     flex-shrink:0;
   }
+
+  /* ---------- Splash screen (intro tipo app nativa) ---------- */
+  #splash{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    background:#fff;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transition:opacity .45s ease;
+  }
+  #splash.fade-out{
+    opacity:0;
+    pointer-events:none;
+  }
+  #splashLottie{
+    width:min(46vw, 190px);
+    height:min(46vw, 190px);
+  }
+  .splash-text{
+    text-align:center;
+    margin-top:2px;
+  }
+  .splash-line1, .splash-line2, .splash-line3{
+    opacity:0;
+    transform:translateY(10px);
+  }
+  .splash-line1.show, .splash-line2.show, .splash-line3.show{
+    animation:splashTextIn .55s ease forwards;
+  }
+  @keyframes splashTextIn{
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .splash-line1{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.18em;
+    color:var(--gray);
+    text-transform:uppercase;
+  }
+  .splash-line2{
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size:26px;
+    font-weight:700;
+    color:var(--red);
+    margin-top:2px;
+  }
+  .splash-line3{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.14em;
+    color:var(--gray);
+    margin-top:2px;
+  }
 </style>
 </head>
 <body>
+
+<div id="splash">
+  <div id="splashLottie"></div>
+  <div class="splash-text">
+    <div class="splash-line1" id="splashLine1">LICEO TALLER</div>
+    <div class="splash-line2" id="splashLine2">San Miguel</div>
+    <div class="splash-line3" id="splashLine3">EST. 1996</div>
+  </div>
+</div>
 
 <header>
   <div class="header-grid">
@@ -708,7 +776,7 @@
 
 <section class="upcoming-section">
   <div class="upcoming-header">
-    <div class="upcoming-title">Próximas tareas</div>
+    <div class="upcoming-title">Próximas Actividades</div>
     <span class="upcoming-badge">Próximamente</span>
   </div>
   <div class="upcoming-carousel" id="upcomingCarousel">
@@ -717,7 +785,7 @@
         <span class="task-tag">Math</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">Entrega taller de fracciones</div>
+      <div class="task-title">(Prueba) Entrega taller de fracciones</div>
       <div class="task-meta">🗓 Vence en 3 días</div>
     </div>
     <div class="task-card">
@@ -725,7 +793,7 @@
         <span class="task-tag">Science</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">Quiz: ciclo del agua</div>
+      <div class="task-title">(Prueba) Quiz: ciclo del agua</div>
       <div class="task-meta">🗓 Vence el viernes</div>
     </div>
     <div class="task-card">
@@ -733,7 +801,7 @@
         <span class="task-tag">Español</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">Ensayo: mi libro favorito</div>
+      <div class="task-title">(Prueba) Ensayo: mi libro favorito</div>
       <div class="task-meta">🗓 Próxima semana</div>
     </div>
     <div class="task-card">
@@ -741,7 +809,7 @@
         <span class="task-tag">Sociales</span>
         <span class="task-lock">🔒</span>
       </div>
-      <div class="task-title">Proyecto: mi comunidad</div>
+      <div class="task-title">(Prueba) Proyecto: mi comunidad</div>
       <div class="task-meta">🗓 Sin fecha definida</div>
     </div>
   </div>
@@ -819,7 +887,40 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 <script>
+// ---------- Splash screen (Lottie: casita San Miguel formándose + anillo) ----------
+const SPLASH_LOTTIE_DATA = {"v":"5.9.6","fr":30,"ip":0,"op":96,"w":400,"h":400,"nm":"SanMiguelSplash","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":3,"ty":4,"nm":"Ring","sr":1,"ks":{"o":{"a":0,"k":100},"r":{"a":0,"k":0},"p":{"a":0,"k":[200,200,0]},"a":{"a":0,"k":[0,0,0]},"s":{"a":0,"k":[100,100,100]}},"ao":0,"shapes":[{"ty":"gr","nm":"ringGroup","it":[{"ty":"el","nm":"ring","p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[352,352]}},{"ty":"st","c":{"a":0,"k":[0.702,0.1529,0.1765,1]},"o":{"a":0,"k":100},"w":{"a":0,"k":6},"lc":2,"lj":2,"nm":"ringStroke"},{"ty":"tm","nm":"ringTrim","s":{"a":0,"k":0},"e":{"a":1,"k":[{"t":26,"s":[0],"e":[100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":58,"s":[100]}]},"o":{"a":0,"k":-90},"m":1},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}],"ip":0,"op":96,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"Cutouts","sr":1,"ks":{"o":{"a":1,"k":[{"t":10,"s":[0],"e":[100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":20,"s":[100]}]},"r":{"a":0,"k":0},"p":{"a":0,"k":[200,190,0]},"a":{"a":0,"k":[200,190,0]},"s":{"a":1,"k":[{"t":10,"s":[70,70,100],"e":[100,100,100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":22,"s":[100,100,100]}]}},"ao":0,"shapes":[{"ty":"gr","nm":"cutoutGroup","it":[{"ty":"el","nm":"headCircle","p":{"a":0,"k":[200,200]},"s":{"a":0,"k":[56,56]}},{"ty":"rc","nm":"bodyRect","p":{"a":0,"k":[200,266.5]},"s":{"a":0,"k":[52,77]},"r":{"a":0,"k":10}},{"ty":"fl","c":{"a":0,"k":[1,1,1,1]},"o":{"a":0,"k":100},"nm":"cutoutFill"},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}],"ip":0,"op":96,"st":0,"bm":0},{"ddd":0,"ind":1,"ty":4,"nm":"House","sr":1,"ks":{"o":{"a":1,"k":[{"t":0,"s":[0],"e":[100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":6,"s":[100]}]},"r":{"a":0,"k":0},"p":{"a":0,"k":[200,190,0]},"a":{"a":0,"k":[200,190,0]},"s":{"a":1,"k":[{"t":0,"s":[10,10,100],"e":[112,112,100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":16,"s":[112,112,100],"e":[100,100,100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":24,"s":[100,100,100]}]}},"ao":0,"shapes":[{"ty":"gr","nm":"houseGroup","it":[{"ty":"sh","nm":"houseOutline","ks":{"a":0,"k":{"c":true,"i":[[0,0],[-6.248561203989284,-6.248561203989284],[0,0],[8.8368,-0.0],[0,0],[-0.0,-8.8368],[0,0],[8.8368,-0.0],[0,0],[-0.0,8.8368],[0,0],[8.8368,-0.0],[0,0],[-6.248561203989284,6.248561203989284]],"o":[[6.248561203989284,-6.248561203989284],[0,0],[6.248561203989284,6.248561203989284],[0,0],[-8.8368,0.0],[0,0],[0.0,8.8368],[0,0],[-8.8368,0.0],[0,0],[0.0,-8.8368],[0,0],[-8.8368,0.0],[0,0]],"v":[[188.68629150101523,99.31370849898477],[211.31370849898477,99.31370849898477],[284.68629150101526,172.68629150101523],[280.0,184.0],[282.0,184.0],[266.0,200.0],[266.0,276.0],[250.0,292.0],[150.0,292.0],[134.0,276.0],[134.0,200.0],[118.0,184.0],[120.0,184.0],[115.31370849898477,172.68629150101523]]}}},{"ty":"fl","c":{"a":0,"k":[0.702,0.1529,0.1765,1]},"o":{"a":0,"k":100},"nm":"houseFill"},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}],"ip":0,"op":96,"st":0,"bm":0}]};
+
+function initSplash(){
+  const splash = document.getElementById('splash');
+  const line1 = document.getElementById('splashLine1');
+  const line2 = document.getElementById('splashLine2');
+  const line3 = document.getElementById('splashLine3');
+
+  try{
+    lottie.loadAnimation({
+      container: document.getElementById('splashLottie'),
+      renderer: 'svg',
+      loop: false,
+      autoplay: true,
+      animationData: SPLASH_LOTTIE_DATA
+    });
+  }catch(e){ /* si falla la animación, igual mostramos el texto y seguimos */ }
+
+  // El anillo termina de dibujarse ~frame 58 de 30fps (~1.93s)
+  setTimeout(()=> line1.classList.add('show'), 1950);
+  setTimeout(()=> line2.classList.add('show'), 2100);
+  setTimeout(()=> line3.classList.add('show'), 2250);
+
+  // Mantener el splash un instante y luego revelar la app
+  setTimeout(()=>{
+    splash.classList.add('fade-out');
+    setTimeout(()=>{ splash.style.display = 'none'; }, 500);
+  }, 2900);
+}
+initSplash();
+
 // ---------- Calendario por ciclos (Ago–Nov 2026), Liceo Taller San Miguel ----------
 // Cada entrada: "YYYY-MM-DD": { day: 1-6 } o { special: "texto" }
 const CYCLE_MAP = {
