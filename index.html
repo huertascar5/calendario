@@ -1618,10 +1618,14 @@ document.getElementById('saveSubjectsBtn').addEventListener('click', ()=>{
 // más próximos leídos del calendario. title se separa por "-": lo que va antes es la
 // "asignatura" (etiqueta superior izquierda) y el resto es la descripción de la tarjeta.
 const UPCOMING_ITEMS = [
+  { title: "Lenguaje - Ensayo Poesía", due: "2026-08-18", type: "tarea",
+    desc: "Realizar un ensayo sobre la poesía utilizando la estructura del ensayo." },
+  { title: "Math - Examen fracciones", due: "2026-08-20", type: "evento",
+    desc: "Se realiza examen de Math del tema raíz cuadrado y área de figuras geométricas." },
+  { title: "Progrentis - Unidad 10", due: "2026-08-24", type: "tarea",
+    desc: "Los estudiantes deben ir en la unidad 10 de progrentis." },
   { title: "Pruebas - Milton Ochoa", due: "2026-08-27", type: "evento",
     desc: "Este día se presentan las pruebas Milton Ochoa. Traer lápiz mirado 2." },
-  { title: "Examen Math", due: "2026-08-20", type: "evento",
-    desc: "Se realiza examen de Math del tema raíz cuadrado y área de figuras geométricas." },
 ];
 const UPCOMING_LAST_SYNC = "2026-08-15";
 
