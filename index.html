@@ -185,8 +185,11 @@
     border-radius:14px;
     padding:14px 15px;
     position:relative;
-    opacity:0.68;
-    filter:saturate(0.75);
+    cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .task-card:active{
+    transform:scale(0.98);
   }
   .task-card-top{
     display:flex;
@@ -199,15 +202,27 @@
     font-weight:700;
     text-transform:uppercase;
     letter-spacing:.04em;
-    color:var(--red);
-    background:#fbe9e8;
     padding:3px 9px;
     border-radius:20px;
   }
-  .task-lock{
-    font-size:12px;
-    opacity:0.7;
+  .task-tag.rojo{
+    color:var(--red);
+    background:#fbe9e8;
   }
+  .task-tag.gris{
+    color:var(--uniform-gray);
+    background:#eceded;
+  }
+  .task-due-pill{
+    font-size:10px;
+    font-weight:700;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .task-due-pill.overdue{ color:#fff; background:var(--red); }
+  .task-due-pill.soon{ color:#8a5a12; background:#fbeccb; }
+  .task-due-pill.normal{ color:var(--gray); background:var(--gray-light); }
   .task-title{
     font-size:14px;
     font-weight:700;
@@ -220,12 +235,47 @@
     color:var(--gray);
     font-weight:500;
   }
+  .upcoming-empty{
+    padding:18px 20px;
+    text-align:center;
+    color:var(--gray);
+    font-size:13px;
+  }
   .upcoming-footnote{
     padding:2px 20px 0 20px;
     font-size:11px;
     color:var(--gray);
     text-align:center;
     line-height:1.4;
+  }
+
+  /* Detalle de actividad (mismo estilo del detalle de día) */
+  .task-detail-body{
+    padding:16px 20px 24px 20px;
+  }
+  .task-detail-due{
+    display:inline-block;
+    font-size:12px;
+    font-weight:700;
+    padding:4px 11px;
+    border-radius:20px;
+    margin-bottom:16px;
+  }
+  .task-detail-due.overdue{ color:#fff; background:var(--red); }
+  .task-detail-due.soon{ color:#8a5a12; background:#fbeccb; }
+  .task-detail-due.normal{ color:var(--gray); background:var(--gray-light); }
+  .task-detail-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--gray);
+    margin-bottom:8px;
+  }
+  .task-detail-desc{
+    font-size:15px;
+    color:var(--ink);
+    line-height:1.5;
   }
 
   .day-card{
@@ -777,43 +827,10 @@
 <section class="upcoming-section">
   <div class="upcoming-header">
     <div class="upcoming-title">Próximas Actividades</div>
-    <span class="upcoming-badge">Próximamente</span>
+    <span class="upcoming-badge" id="upcomingBadge">Google Calendar</span>
   </div>
-  <div class="upcoming-carousel" id="upcomingCarousel">
-    <div class="task-card">
-      <div class="task-card-top">
-        <span class="task-tag">Math</span>
-        <span class="task-lock">🔒</span>
-      </div>
-      <div class="task-title">(Prueba) Entrega taller de fracciones</div>
-      <div class="task-meta">🗓 Vence en 3 días</div>
-    </div>
-    <div class="task-card">
-      <div class="task-card-top">
-        <span class="task-tag">Science</span>
-        <span class="task-lock">🔒</span>
-      </div>
-      <div class="task-title">(Prueba) Quiz: ciclo del agua</div>
-      <div class="task-meta">🗓 Vence el viernes</div>
-    </div>
-    <div class="task-card">
-      <div class="task-card-top">
-        <span class="task-tag">Español</span>
-        <span class="task-lock">🔒</span>
-      </div>
-      <div class="task-title">(Prueba) Ensayo: mi libro favorito</div>
-      <div class="task-meta">🗓 Próxima semana</div>
-    </div>
-    <div class="task-card">
-      <div class="task-card-top">
-        <span class="task-tag">Sociales</span>
-        <span class="task-lock">🔒</span>
-      </div>
-      <div class="task-title">(Prueba) Proyecto: mi comunidad</div>
-      <div class="task-meta">🗓 Sin fecha definida</div>
-    </div>
-  </div>
-  <div class="upcoming-footnote">Esta función es una vista previa · Disponible en una próxima actualización</div>
+  <div class="upcoming-carousel" id="upcomingCarousel"></div>
+  <div class="upcoming-footnote" id="upcomingFootnote">Fuente: Google Calendar · Actualizado manualmente</div>
 </section>
 
 <div class="overlay" id="overlay">
@@ -835,6 +852,26 @@
     <div class="event-footer" id="eventFooter" style="display:none;">
       <div class="event-footer-icon">★</div>
       <div class="event-footer-text" id="eventFooterText"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="taskOverlay">
+  <div class="sheet">
+    <div class="sheet-header">
+      <div class="grip"></div>
+      <div class="title-row">
+        <div style="flex:1;">
+          <h2 id="taskSheetTitle">Actividad</h2>
+          <div class="sheet-sub" id="taskSheetSub">Asignatura</div>
+        </div>
+        <button class="close-btn" id="taskCloseBtn" style="margin-left:8px;">✕</button>
+      </div>
+    </div>
+    <div class="task-detail-body">
+      <div class="task-detail-due" id="taskDetailDue"></div>
+      <div class="task-detail-label">Descripción del evento</div>
+      <div class="task-detail-desc" id="taskDetailDesc"></div>
     </div>
   </div>
 </div>
@@ -1363,6 +1400,31 @@ document.getElementById('closeBtn').addEventListener('click', ()=>{
 document.getElementById('overlay').addEventListener('click', (e)=>{
   if(e.target.id==='overlay') e.target.classList.remove('show');
 });
+
+function openTaskDetail(item){
+  const { tag, desc } = parseUpcomingTitle(item.title);
+  const dueInfo = formatDueDate(item.due);
+
+  document.getElementById('taskSheetTitle').textContent = desc;
+  document.getElementById('taskSheetSub').textContent = tag;
+
+  const dueEl = document.getElementById('taskDetailDue');
+  dueEl.textContent = dueInfo.text;
+  dueEl.className = 'task-detail-due ' + dueInfo.cls;
+
+  document.getElementById('taskDetailDesc').textContent = item.desc && item.desc.trim()
+    ? item.desc
+    : 'Sin descripción adicional en Google Calendar.';
+
+  document.getElementById('taskOverlay').classList.add('show');
+}
+document.getElementById('taskCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('taskOverlay').classList.remove('show');
+});
+document.getElementById('taskOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='taskOverlay') e.target.classList.remove('show');
+});
+
 document.getElementById('prevWeek').addEventListener('click', ()=>{
   currentMonday.setDate(currentMonday.getDate()-7);
   render();
@@ -1551,8 +1613,83 @@ document.getElementById('saveSubjectsBtn').addEventListener('click', ()=>{
   status.textContent = 'Asignaturas guardadas ✓';
 });
 
+// ---------- Próximas Actividades (fuente: Google Calendar, actualizado manualmente) ----------
+// Cada vez que se solicite una actualización, se reemplaza este arreglo con los eventos
+// más próximos leídos del calendario. title se separa por "-": lo que va antes es la
+// "asignatura" (etiqueta superior izquierda) y el resto es la descripción de la tarjeta.
+const UPCOMING_ITEMS = [
+  { title: "Pruebas - Milton Ochoa", due: "2026-08-27", type: "evento",
+    desc: "Este día se presentan las pruebas Milton Ochoa. Traer lápiz mirado 2." },
+  { title: "Examen Math", due: "2026-08-20", type: "evento",
+    desc: "Se realiza examen de Math del tema raíz cuadrado y área de figuras geométricas." },
+];
+const UPCOMING_LAST_SYNC = "2026-08-15";
+
+function parseUpcomingTitle(title){
+  const idx = title.indexOf('-');
+  if(idx === -1){
+    return { tag: "General", desc: title.trim() };
+  }
+  return {
+    tag: title.slice(0, idx).trim(),
+    desc: title.slice(idx+1).trim()
+  };
+}
+
+function formatDueDate(isoDate){
+  const due = new Date(isoDate + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diffDays = Math.round((due - today) / 86400000);
+
+  if(diffDays === 0) return { text: "Vence hoy", cls: "overdue" };
+  if(diffDays === 1) return { text: "Vence mañana", cls: "soon" };
+  if(diffDays > 1 && diffDays <= 6) return { text: `Vence en ${diffDays} días`, cls: "soon" };
+  if(diffDays < 0) return { text: `Venció hace ${-diffDays} día${-diffDays===1?'':'s'}`, cls: "overdue" };
+  return { text: `Vence el ${due.getDate()} ${MONTH_NAMES[due.getMonth()]}`, cls: "normal" };
+}
+
+function renderUpcomingItems(){
+  const container = document.getElementById('upcomingCarousel');
+  const footnote = document.getElementById('upcomingFootnote');
+  container.innerHTML = '';
+
+  if(!UPCOMING_ITEMS || UPCOMING_ITEMS.length === 0){
+    container.innerHTML = `<div class="upcoming-empty">No hay actividades próximas registradas.</div>`;
+    return;
+  }
+
+  const sorted = [...UPCOMING_ITEMS].sort((a,b)=> new Date(a.due) - new Date(b.due));
+  const top5 = sorted.slice(0,5);
+
+  top5.forEach(item=>{
+    const { tag, desc } = parseUpcomingTitle(item.title);
+    const dueInfo = formatDueDate(item.due);
+    const tagClass = item.type === 'tarea' ? 'gris' : 'rojo';
+
+    const card = document.createElement('div');
+    card.className = 'task-card';
+    card.innerHTML = `
+      <div class="task-card-top">
+        <span class="task-tag ${tagClass}">${tag}</span>
+        <span class="task-due-pill ${dueInfo.cls}">${dueInfo.text}</span>
+      </div>
+      <div class="task-title">${desc}</div>
+      <div class="task-meta">🗓 ${new Date(item.due+'T00:00:00').getDate()} de ${MONTH_NAMES[new Date(item.due+'T00:00:00').getMonth()]}</div>
+    `;
+    card.addEventListener('click', ()=> openTaskDetail(item));
+    container.appendChild(card);
+  });
+
+  if(footnote){
+    const d = new Date(UPCOMING_LAST_SYNC+'T00:00:00');
+    footnote.textContent = `Fuente: Google Calendar · Actualizado manualmente el ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}`;
+  }
+}
+
 loadCursoBadge();
 loadStudentNameDisplay();
+renderUpcomingItems();
 render();
 
 </script>
