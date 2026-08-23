@@ -1257,6 +1257,18 @@ function storageSet(key, value){
   catch(e){ memoryStore[key] = value; }
 }
 
+// Valores precargados: solo se aplican si el usuario nunca los ha configurado.
+const DEFAULT_ESTUDIANTE = "Estudiante";
+const DEFAULT_CURSO = "7B";
+(function precargarDatosBasicos(){
+  if(storageGet(STORAGE_KEY_ESTUDIANTE) === null){
+    storageSet(STORAGE_KEY_ESTUDIANTE, DEFAULT_ESTUDIANTE);
+  }
+  if(storageGet(STORAGE_KEY_CURSO) === null){
+    storageSet(STORAGE_KEY_CURSO, DEFAULT_CURSO);
+  }
+})();
+
 // Estado efectivo de asignaturas: por defecto + lo que el usuario haya editado
 let SUBJECTS = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
 (function loadSubjectsFromStorage(){
