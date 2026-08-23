@@ -413,6 +413,9 @@
     padding:20px 20px 16px 20px;
     border-radius:18px 18px 0 0;
   }
+  .sheet-header.uniforme-rojo{ background:var(--red); }
+  .sheet-header.uniforme-gris{ background:var(--uniform-gray); }
+  .sheet-header.dia-especial{ background:var(--gold); }
   .sheet-header .grip{
     width:36px;height:4px;background:rgba(255,255,255,.4);
     border-radius:4px;margin:0 auto 14px auto;
@@ -837,7 +840,7 @@
 
 <div class="overlay" id="overlay">
   <div class="sheet">
-    <div class="sheet-header">
+    <div class="sheet-header" id="daySheetHeader">
       <div class="grip"></div>
       <div class="title-row">
         <div style="flex:1;">
@@ -1363,14 +1366,17 @@ function openSheet(date, info, weekdayName){
 
   const mascotWrap = document.getElementById('mascotWrap');
   const uniformTag = document.getElementById('uniformTag');
+  const sheetHeader = document.getElementById('daySheetHeader');
 
   list.innerHTML = '';
   eventFooter.style.display = 'none';
+  sheetHeader.classList.remove('uniforme-rojo','uniforme-gris','dia-especial');
 
   if(info && info.day){
     sub.textContent = `Ciclo ${info.cycle} · Día ${info.day}`;
     const uniform = UNIFORM_BY_DAY[info.day];
     uniformTag.textContent = `Uniforme ${uniform}`;
+    sheetHeader.classList.add('uniforme-' + uniform);
     mascotWrap.style.display = 'block';
     SUBJECTS[info.day].forEach((subj, idx)=>{
       const row = document.createElement('div');
@@ -1386,10 +1392,12 @@ function openSheet(date, info, weekdayName){
   } else if(info && info.special){
     sub.textContent = info.special;
     mascotWrap.style.display = 'none';
+    sheetHeader.classList.add('dia-especial');
     list.innerHTML = `<div class="no-data">No hay asignaturas programadas para este día.</div>`;
   } else {
     sub.textContent = 'Sin información';
     mascotWrap.style.display = 'none';
+    sheetHeader.classList.add('uniforme-gris');
     list.innerHTML = `<div class="no-data">Este día está fuera del rango del calendario cargado (julio 2026 – agosto 2027).</div>`;
   }
 
