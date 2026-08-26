@@ -831,11 +831,11 @@
 
 <section class="upcoming-section">
   <div class="upcoming-header">
-    <div class="upcoming-title">Próximas Actividades</div>
-    <span class="upcoming-badge" id="upcomingBadge">Google Calendar</span>
+    <div class="upcoming-title" id="upcomingTitle">Próximas Actividades</div>
+    <span class="upcoming-badge" id="upcomingBadge" style="display:none"></span>
   </div>
   <div class="upcoming-carousel" id="upcomingCarousel"></div>
-  <div class="upcoming-footnote" id="upcomingFootnote">Fuente: Google Calendar · Actualizado manualmente</div>
+  <div class="upcoming-footnote" id="upcomingFootnote"></div>
 </section>
 
 <div class="overlay" id="overlay">
@@ -1436,7 +1436,7 @@ function openTaskDetail(item){
 
   document.getElementById('taskDetailDesc').textContent = item.desc && item.desc.trim()
     ? item.desc
-    : 'Sin descripción adicional en Google Calendar.';
+    : 'Sin descripción adicional.';
 
   document.getElementById('taskOverlay').classList.add('show');
 }
@@ -1619,6 +1619,7 @@ document.getElementById('saveStudentBtn').addEventListener('click', ()=>{
   storageSet(STORAGE_KEY_CURSO, cursoValue);
   loadCursoBadge();
   loadStudentNameDisplay();
+  renderUpcomingItems();
   status.className = 'status-msg success';
   status.textContent = 'Guardado ✓';
 });
@@ -1641,43 +1642,20 @@ document.getElementById('saveSubjectsBtn').addEventListener('click', ()=>{
   status.textContent = 'Asignaturas guardadas ✓';
 });
 
-// ---------- Próximas Actividades (fuente: Google Calendar en vivo) ----------
-// El Apps Script publica los próximos eventos y tareas como JSON.
-// Se consulta al abrir la app; si no hay señal se usa la última copia guardada.
-const UPCOMING_ENDPOINT = "https://script.google.com/macros/s/AKfycbw8HgwbP-799U6TA8uJsCf2iGpLyDsaQrdNjS4b4BaXs-dHhsM660BkPAhl8EFfUE8i-A/exec";
-const STORAGE_KEY_UPCOMING = 'sm_horario7a_upcoming_cache';
-
-// Respaldo: se usa solo si nunca se ha podido contactar el calendario.
-const UPCOMING_FALLBACK = [
-  { title: "Lenguaje - Ensayo Poesía", due: "2026-08-18", type: "tarea",
-    desc: "Realizar un ensayo sobre la poesía utilizando la estructura del ensayo." },
-  { title: "Math - Examen fracciones", due: "2026-08-20", type: "evento",
-    desc: "Se realiza examen de Math del tema raíz cuadrado y área de figuras geométricas." },
-  { title: "Progrentis - Unidad 10", due: "2026-08-24", type: "tarea",
-    desc: "Los estudiantes deben ir en la unidad 10 de progrentis." },
-  { title: "Pruebas - Milton Ochoa", due: "2026-08-27", type: "evento",
-    desc: "Este día se presentan las pruebas Milton Ochoa. Traer lápiz mirado 2." },
-];
-
-let UPCOMING_ITEMS = [];
+// ---------- Próximas Actividades (sin conexión a calendario) ----------
+// Espacio reservado: por ahora no hay una fuente de eventos conectada.
+const UPCOMING_ITEMS = [];
 
 function parseUpcomingTitle(title){
   const idx = title.indexOf('-');
-  if(idx === -1){
-    return { tag: "General", desc: title.trim() };
-  }
-  return {
-    tag: title.slice(0, idx).trim(),
-    desc: title.slice(idx+1).trim()
-  };
+  if(idx === -1) return { tag: "General", desc: title.trim() };
+  return { tag: title.slice(0, idx).trim(), desc: title.slice(idx+1).trim() };
 }
 
 function formatDueDate(isoDate){
   const due = new Date(isoDate + 'T00:00:00');
-  const today = new Date();
-  today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
   const diffDays = Math.round((due - today) / 86400000);
-
   if(diffDays === 0) return { text: "Vence hoy", cls: "overdue" };
   if(diffDays === 1) return { text: "Vence mañana", cls: "soon" };
   if(diffDays > 1 && diffDays <= 6) return { text: `Vence en ${diffDays} días`, cls: "soon" };
@@ -1685,138 +1663,32 @@ function formatDueDate(isoDate){
   return { text: `Vence el ${due.getDate()} ${MONTH_NAMES[due.getMonth()]}`, cls: "normal" };
 }
 
-function setUpcomingFootnote(texto){
-  const footnote = document.getElementById('upcomingFootnote');
-  if(footnote) footnote.textContent = texto;
-}
-
-function setUpcomingBadge(texto){
-  const badge = document.getElementById('upcomingBadge');
-  if(badge) badge.textContent = texto;
+function cursoActual(){
+  return (storageGet(STORAGE_KEY_CURSO) || '').trim();
 }
 
 function renderUpcomingItems(){
+  const curso = cursoActual();
+
+  const titulo = document.getElementById('upcomingTitle');
+  if(titulo) titulo.textContent = 'Próximas Actividades' + (curso ? ' ' + curso : '');
+
+  const badge = document.getElementById('upcomingBadge');
+  if(badge) badge.style.display = 'none';
+
+  const footnote = document.getElementById('upcomingFootnote');
+  if(footnote) footnote.textContent = '';
+
   const container = document.getElementById('upcomingCarousel');
-  container.innerHTML = '';
-
-  if(!UPCOMING_ITEMS || UPCOMING_ITEMS.length === 0){
-    container.innerHTML = `<div class="upcoming-empty">No hay actividades próximas registradas.</div>`;
-    return;
+  if(container){
+    container.innerHTML = '<div class="upcoming-empty">Sin eventos creados para ' +
+      (curso || 'este curso') + '</div>';
   }
-
-  const sorted = [...UPCOMING_ITEMS].sort((a,b)=> new Date(a.due) - new Date(b.due));
-  const top5 = sorted.slice(0,5);
-
-  top5.forEach(item=>{
-    const { tag, desc } = parseUpcomingTitle(item.title);
-    const dueInfo = formatDueDate(item.due);
-    const tagClass = item.type === 'tarea' ? 'gris' : 'rojo';
-
-    const card = document.createElement('div');
-    card.className = 'task-card';
-    card.innerHTML = `
-      <div class="task-card-top">
-        <span class="task-tag ${tagClass}">${tag}</span>
-        <span class="task-due-pill ${dueInfo.cls}">${dueInfo.text}</span>
-      </div>
-      <div class="task-title">${desc}</div>
-      <div class="task-meta">🗓 ${new Date(item.due+'T00:00:00').getDate()} de ${MONTH_NAMES[new Date(item.due+'T00:00:00').getMonth()]}</div>
-    `;
-    card.addEventListener('click', ()=> openTaskDetail(item));
-    container.appendChild(card);
-  });
 }
-
-// Carga vía JSONP: funciona incluso abriendo el archivo localmente en el celular.
-function fetchUpcoming(){
-  setUpcomingBadge('Actualizando…');
-
-  const cbName = 'smCal_' + Date.now();
-  let terminado = false;
-
-  const limpiar = ()=>{
-    try{ delete window[cbName]; }catch(e){ window[cbName] = undefined; }
-    if(script && script.parentNode) script.parentNode.removeChild(script);
-  };
-
-  window[cbName] = function(data){
-    if(terminado) return;
-    terminado = true;
-    clearTimeout(timer);
-    limpiar();
-
-    if(data && data.ok && Array.isArray(data.items)){
-      UPCOMING_ITEMS = data.items;
-      try{ storageSet(STORAGE_KEY_UPCOMING, JSON.stringify({ items: data.items, at: new Date().toISOString() })); }catch(e){}
-      renderUpcomingItems();
-      setUpcomingBadge('Google Calendar');
-      const ahora = new Date();
-      setUpcomingFootnote(`Actualizado hoy a las ${ahora.getHours()}:${String(ahora.getMinutes()).padStart(2,'0')}`);
-    } else {
-      usarRespaldo('No se pudo leer el calendario');
-    }
-  };
-
-  const timer = setTimeout(()=>{
-    if(terminado) return;
-    terminado = true;
-    limpiar();
-    usarRespaldo('Sin conexión');
-  }, 9000);
-
-  const script = document.createElement('script');
-  script.src = UPCOMING_ENDPOINT + '?callback=' + cbName + '&t=' + Date.now();
-  script.onerror = ()=>{
-    if(terminado) return;
-    terminado = true;
-    clearTimeout(timer);
-    limpiar();
-    usarRespaldo('Sin conexión');
-  };
-  document.body.appendChild(script);
-}
-
-function usarRespaldo(motivo){
-  let usadoCache = false;
-  try{
-    const guardado = storageGet(STORAGE_KEY_UPCOMING);
-    if(guardado){
-      const parsed = JSON.parse(guardado);
-      if(parsed && Array.isArray(parsed.items) && parsed.items.length){
-        UPCOMING_ITEMS = parsed.items;
-        usadoCache = true;
-        const d = new Date(parsed.at);
-        setUpcomingFootnote(`${motivo} · Mostrando datos del ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}`);
-      }
-    }
-  }catch(e){}
-
-  if(!usadoCache){
-    UPCOMING_ITEMS = UPCOMING_FALLBACK;
-    setUpcomingFootnote(`${motivo} · Mostrando datos guardados`);
-  }
-
-  renderUpcomingItems();
-  setUpcomingBadge('Sin conexión');
-}
-
-// Mostrar de inmediato lo último conocido y luego refrescar desde el calendario.
-(function iniciarUpcoming(){
-  try{
-    const guardado = storageGet(STORAGE_KEY_UPCOMING);
-    const parsed = guardado ? JSON.parse(guardado) : null;
-    UPCOMING_ITEMS = (parsed && Array.isArray(parsed.items) && parsed.items.length)
-      ? parsed.items
-      : UPCOMING_FALLBACK;
-  }catch(e){
-    UPCOMING_ITEMS = UPCOMING_FALLBACK;
-  }
-  renderUpcomingItems();
-  fetchUpcoming();
-})();
 
 loadCursoBadge();
 loadStudentNameDisplay();
+renderUpcomingItems();
 render();
 
 </script>
