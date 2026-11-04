@@ -1191,12 +1191,12 @@ const CYCLE_MAP = {
 
 // ---------- Asignaturas por día del ciclo (valores por defecto) ----------
 const DEFAULT_SUBJECTS = {
-  1: ["Visual Arts","Visual Arts","BREAK","Science","Identidad San Miguel","Electiva","LUNCH","Educación Física","English"],
-  2: ["Español y Literatura","Español y Literatura","BREAK","Social Studies","Social Studies","Science","LUNCH","Francés","Mathematics"],
-  3: ["English","Mathematics","BREAK","Mathematics","Francés","Social Studies","LUNCH","Pensamiento Comp.","SIAI"],
-  4: ["Science","Mathematics","BREAK","Educación Física","English","Francés","LUNCH","Social Studies","Study Hall"],
-  5: ["Español y Literatura","Español y Literatura","BREAK","Science","Identidad San Miguel","English","LUNCH","Mathematics","SIAI"],
-  6: ["Homeroom","English","BREAK","Mathematics","Social Studies","Progrentis","LUNCH","Español y Literatura","Science"],
+  1: ["Español y Literatura","Social Studies","BREAK","Mathematics","Science","Francés","LUNCH","Educación Física","English"],
+  2: ["Mathematics","Social Studies","BREAK","Francés","English","Identidad San Miguel","LUNCH","Español y Literatura","Science"],
+  3: ["Español y Literatura","English","BREAK","Social Studies","Educación Física","Profundización","LUNCH","Science","Mathematics"],
+  4: ["Identidad San Miguel","Electiva","BREAK","Social Studies","Mathematics","Pensamiento Comp.","LUNCH","Profundización","Francés"],
+  5: ["English","Español y Literatura","BREAK","Science","Mathematics","Progrentis Middle School","LUNCH","Social Studies","SIAI"],
+  6: ["Homeroom","Visual Arts","BREAK","Visual Arts","Mathematics","Science","LUNCH","English","Español y Literatura"],
 };
 
 // ---------- Almacenamiento persistente (localStorage con respaldo en memoria) ----------
@@ -1239,7 +1239,7 @@ let SUBJECTS = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
 
 // Uniforme según el día del ciclo: valor por defecto (rojo en 3 y 5, gris el resto)
 const STORAGE_KEY_UNIFORMS = 'sm_horario8b_uniforms';
-const UNIFORM_BY_DAY = { 1:"rojo", 2:"gris", 3:"gris", 4:"rojo", 5:"gris", 6:"gris" };
+const UNIFORM_BY_DAY = { 1:"rojo", 2:"gris", 3:"rojo", 4:"gris", 5:"gris", 6:"gris" };
 (function loadUniformsFromStorage(){
   const saved = storageGet(STORAGE_KEY_UNIFORMS);
   if(saved){
@@ -1346,11 +1346,14 @@ function openSheet(date, info, weekdayName){
     uniformTag.textContent = `Uniforme ${uniform}`;
     sheetHeader.classList.add('uniforme-' + uniform);
     mascotWrap.style.display = 'block';
-    SUBJECTS[info.day].forEach((subj, idx)=>{
+    let nClase = 0;
+    SUBJECTS[info.day].forEach((subj)=>{
+      const esBreak = subj==='BREAK', esLunch = subj==='LUNCH';
+      if(!esBreak && !esLunch) nClase++;
       const row = document.createElement('div');
-      const cls = subj==='BREAK' ? 'break' : (subj==='LUNCH' ? 'lunch' : '');
+      const cls = esBreak ? 'break' : (esLunch ? 'lunch' : '');
       row.className = 'subj-row ' + cls;
-      row.innerHTML = `<div class="subj-idx">${idx+1}</div><div class="subj-name">${subj==='BREAK'?'Descanso':subj==='LUNCH'?'Almuerzo':subj}</div>`;
+      row.innerHTML = `<div class="subj-idx">${nClase}</div><div class="subj-name">${esBreak?'Descanso':esLunch?'Almuerzo':subj}</div>`;
       list.appendChild(row);
     });
     if(info.event){
@@ -1418,7 +1421,7 @@ document.getElementById('goToday').addEventListener('click', ()=>{
 
 // ---------- Panel de configuración ----------
 const SUBJECT_LABELS = ["1ª clase","2ª clase","Descanso","3ª clase","4ª clase","5ª clase","Almuerzo","6ª clase","7ª clase"];
-const FIXED_INDEXES = [2, 6]; // BREAK y LUNCH: posiciones fijas, no editables
+const esBloqueFijo = (v)=> v === 'BREAK' || v === 'LUNCH'; // Descanso/Almuerzo: no editables
 let selectedEditDay = 1;
 let draftSubjects = null;
 let draftUniforms = null;
@@ -1507,11 +1510,11 @@ function renderSubjectsEditor(){
   const list = draftSubjects[selectedEditDay];
   list.forEach((subj, idx)=>{
     const row = document.createElement('div');
-    const isFixed = FIXED_INDEXES.includes(idx);
+    const isFixed = esBloqueFijo(subj);
     row.className = 'subject-edit-row' + (isFixed ? ' fixed' : '');
     const label = document.createElement('div');
     label.className = 'subj-num';
-    label.textContent = idx+1;
+    label.textContent = isFixed ? '·' : list.slice(0, idx+1).filter(v=>!esBloqueFijo(v)).length;
     const input = document.createElement('input');
     input.type = 'text';
     input.dataset.idx = idx;
@@ -1532,7 +1535,7 @@ function saveCurrentEditorIntoDraft(){
   const inputs = wrap.querySelectorAll('input');
   inputs.forEach(input=>{
     const idx = parseInt(input.dataset.idx, 10);
-    if(!FIXED_INDEXES.includes(idx)){
+    if(!esBloqueFijo(draftSubjects[selectedEditDay][idx])){
       draftSubjects[selectedEditDay][idx] = input.value.trim() || draftSubjects[selectedEditDay][idx];
     }
   });
