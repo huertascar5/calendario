@@ -1191,12 +1191,12 @@ const CYCLE_MAP = {
 
 // ---------- Asignaturas por día del ciclo (valores por defecto) ----------
 const DEFAULT_SUBJECTS = {
-  1: ["Progrentis","Español","BREAK","Science","Sociales","Math","LUNCH","English","English"],
-  2: ["Sociales","Math","BREAK","Science","Science","Español","LUNCH","Identidad Sanmiguel","Francés"],
-  3: ["English","Sociales","BREAK","Francés","English","Pensamiento Comp.","LUNCH","Educación física","SIAI"],
-  4: ["Science","Francés","BREAK","Sociales","Math","English","LUNCH","Español","Study Hall"],
-  5: ["Español","Math","BREAK","Science","Educación Física","Identidad Sanmiguel","LUNCH","Sociales","SIAI"],
-  6: ["Homeroom","Math","BREAK","Electiva","Visual Arts","Visual Arts","LUNCH","English","Español"],
+  1: ["Progrentis Middle School","Science","BREAK","Español y Literatura","Social Studies","English","LUNCH","Reading Institutional Program","Mathematics"],
+  2: ["Profundización","Español y Literatura","BREAK","Mathematics","Francés","English","LUNCH","Science","Social Studies"],
+  3: ["Social Studies","Science","BREAK","Español y Literatura","Identidad San Miguel","Francés","LUNCH","Mathematics","English"],
+  4: ["Español y Literatura","Reading Institutional Program","BREAK","Educación Física","Social Studies","Mathematics","LUNCH","Science","Identidad San Miguel"],
+  5: ["Electiva","Science","BREAK","Visual Arts","Visual Arts","Reading Institutional Program","LUNCH","Pensamiento Comp.","SIAI"],
+  6: ["Homeroom","Profundización","BREAK","Mathematics","Educación Física","Social Studies","LUNCH","Francés","Español y Literatura"],
 };
 
 // ---------- Almacenamiento persistente (localStorage con respaldo en memoria) ----------
@@ -1239,7 +1239,7 @@ let SUBJECTS = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
 
 // Uniforme según el día del ciclo: valor por defecto (rojo en 3 y 5, gris el resto)
 const STORAGE_KEY_UNIFORMS = 'sm_horario_uniforms';
-const UNIFORM_BY_DAY = { 1:"gris", 2:"gris", 3:"rojo", 4:"gris", 5:"rojo", 6:"gris" };
+const UNIFORM_BY_DAY = { 1:"gris", 2:"gris", 3:"gris", 4:"rojo", 5:"gris", 6:"rojo" };
 (function loadUniformsFromStorage(){
   const saved = storageGet(STORAGE_KEY_UNIFORMS);
   if(saved){
