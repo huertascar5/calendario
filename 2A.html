@@ -1191,12 +1191,12 @@ const CYCLE_MAP = {
 
 // ---------- Asignaturas por día del ciclo (valores por defecto) ----------
 const DEFAULT_SUBJECTS = {
-  1: ["Identidad San Miguel","BREAK","Reading Inst.","LUNCH","Ciencias Sociales"],
-  2: ["Mathematics","BREAK","Progrentis Elementar","Lenguaje","LUNCH","Reading Inst."],
-  3: ["Teatro","Música","BREAK","Lenguaje","LUNCH","Science","English"],
-  4: ["Progrentis Elementar","Danzas","BREAK","Lenguaje","Science","LUNCH","Mathematics","Ciencias Sociales"],
-  5: ["Arts","Ajedrez","BREAK","English","Mathematics","LUNCH","Science"],
-  6: ["Homeroom","Mathematics","BREAK","Science","Ciencias Sociales","LUNCH","Educación Física"],
+  1: ["Teatro","Science","BREAK","Mathematics","Lenguaje","LUNCH","Reading Institutional Program","Progrentis Elementar"],
+  2: ["Progrentis Elementar","Mathematics","BREAK","Lenguaje","Science","LUNCH","Educación Física"],
+  3: ["Mathematics","English","BREAK","Lenguaje","LUNCH","Science","Ciencias Sociales"],
+  4: ["Arts","BREAK","Mathematics","LUNCH","Ciencias Sociales","Ajedrez"],
+  5: ["Identidad San Miguel","BREAK","Reading Institutional Program","LUNCH","Música","Science"],
+  6: ["Homeroom","English","BREAK","Lenguaje","Danzas","LUNCH","Ciencias Sociales"],
 };
 
 // ---------- Almacenamiento persistente (localStorage con respaldo en memoria) ----------
@@ -1239,7 +1239,7 @@ let SUBJECTS = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
 
 // Uniforme según el día del ciclo: valor por defecto (rojo en 3 y 5, gris el resto)
 const STORAGE_KEY_UNIFORMS = 'sm_horario2a_uniforms';
-const UNIFORM_BY_DAY = { 1:"gris", 2:"gris", 3:"gris", 4:"rojo", 5:"gris", 6:"rojo" };
+const UNIFORM_BY_DAY = { 1:"gris", 2:"rojo", 3:"gris", 4:"gris", 5:"gris", 6:"rojo" };
 (function loadUniformsFromStorage(){
   const saved = storageGet(STORAGE_KEY_UNIFORMS);
   if(saved){
